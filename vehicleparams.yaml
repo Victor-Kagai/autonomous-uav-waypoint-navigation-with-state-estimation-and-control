@@ -56,11 +56,12 @@ uav:
   max_bankangle: 35.0 #To prevent stall
   min_bankangle: 15.0  #Operational bank angle for navigation or loitering
   max_climbrate: 5.0
-  max_descentrate: -5.0
+  max_descentrate: -7.0
 
 #Turn rate constraints
   max_turn_rate: 15.0
-  max_turn_radius: 50.0
+  max_turn_radius: 200.0
+  min_turn_radius: 15.0
 
 #Operational constraints
   max_endurance: 10800 #maximum flight time of the uav as per the uav
@@ -75,10 +76,24 @@ uav:
   terrain_clearance: 50.0
 
 #Performance envelope
-  operational_ceiling: 2000 #metres AMSL---- maximum altitude at which the aircraft can safely and effectively perform its mission
-  service_ceiling: 3000 #metres AMSL -----highest altitude where the UAV can still climb, maneuver, and recover safely---
-  minimum_operational_altitude: 120 #metres---allows the UAV to recover from its own mistakes.
+  operational_ceiling: 2000   #metres AMSL---- maximum altitude at which the aircraft can safely and effectively perform its mission
+  service_ceiling: 3000   #metres AMSL -----highest altitude where the UAV can still climb, maneuver, and recover safely---
+  minimum_operational_altitude: 120   #metres---allows the UAV to recover from its own mistakes.
   #(I want to implement a maximum g load at a later time once the firstbuild up is complete)
+
+  control_surfaces:
+    elevator:
+      max_deflection: 25.0      # degrees (up)
+      min_deflection: -25.0     # degrees (down)
+      max_rate: 60.0            # deg/s (how fast it can move)
+    aileron:
+      max_deflection: 25.0      # degrees (up)
+      min_deflection: -25.0     # degrees (down)
+      max_rate: 80.0            # deg/s (faster than elevator)
+    rudder:
+      max_deflection: 25.0      # degrees (right)
+      min_deflection: -25.0     # degrees (left)
+      max_rate: 60.0            # deg/s
 
 path:
   min_altitude_agl: 120 #metres same to the minimum operational altitude of the uav
@@ -93,7 +108,7 @@ path:
   max_climbangle: 12.0   # degrees – below thrust-limited climb envelope
   #Dubins
   dubins:
-    min_radius: 80.0   # metres – planner-safe turn radius (not absolute limit)
+    min_radius: 95.0   # metres – planner-safe turn radius (not absolute limit)
     step_size: 10.0    # metres – smooth Dubins discretization
     path_types: ["LSL", "RSR", "LSR", "RSL", "RLR", "LRL"]
   
