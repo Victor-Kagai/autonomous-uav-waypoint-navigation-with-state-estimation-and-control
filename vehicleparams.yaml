@@ -1,0 +1,145 @@
+mass: 2.0  # kg
+inertia: [0.1, 0.15, 0.2]  # [Ixx, Iyy, Izz] roll inertia (small → agile roll),pitch inertia (moderate),yaw inertia (largest → sluggish yaw) for fixed UAV
+wing_area: 0.5  # m^2
+wing_span: 2.0 # m
+wing_chord: 0.2  # m
+length: 2.1 # m
+height: 1.0
+
+
+stability_derivatives:
+  # Longitudinal derivatives
+  Xu: -0.05    # X-force derivative w.r.t. u (drag damping)
+  Xw:  0.10    # X-force derivative w.r.t. w
+  Zw: -0.40    # Z-force derivative w.r.t. w (vertical stability)
+  Mq: -1.20    # Pitching moment derivative w.r.t. q (pitch damping)
+  
+  # Lateral-directional derivatives
+  Yv: -0.30    # Y-force derivative w.r.t. v (lateral stability)
+  Lp: -0.80    # Rolling moment derivative w.r.t. p (roll damping)
+  Nr: -0.60    # Yawing moment derivative w.r.t. r (yaw damping)
+
+
+control_derivatives:
+  # Elevator effectiveness
+  CLdelta_e: 0.43    # Lift due to elevator
+  CDdelta_e: 0.0     # Drag due to elevator
+  CYdelta_e: 0.0     # Side force due to elevator
+  Cldelta_e: 0.0     # Roll moment due to elevator
+  Cmdelta_e: -1.122  # Pitch moment due to elevator
+  Cndelta_e: 0.0     # Yaw moment due to elevator
+  
+  # Aileron effectiveness
+  CLdelta_a: 0.0     # Lift due to aileron
+  CDdelta_a: 0.0     # Drag due to aileron
+  CYdelta_a: 0.0     # Side force due to aileron
+  Cldelta_a: 0.229   # Roll moment due to aileron
+  Cmdelta_a: 0.0     # Pitch moment due to aileron
+  Cndelta_a: -0.032  # Adverse yaw due to aileron
+  
+  # Rudder effectiveness
+  CLdelta_r: 0.0     # Lift due to rudder
+  CDdelta_r: 0.0     # Drag due to rudder
+  CYdelta_r: -0.17   # Side force due to rudder
+  Cldelta_r: 0.0147  # Roll moment due to rudder
+  Cmdelta_r: 0.0     # Pitch moment due to rudder
+  Cndelta_r: -0.074  # Yaw moment due to rudder
+
+uav:
+#For the kinematics constraints
+  max_V: 35.0  #m/s
+  min_V: 10.0  #m/s
+  max_a: 80.0  #m/s^2
+  min_a: -5.0 #m/s^2
+
+#For aerodyamic constraints
+  max_bankangle: 35.0 #To prevent stall
+  min_bankangle: 15.0  #Operational bank angle for navigation or loitering
+  max_climbrate: 5.0
+  max_descentrate: -5.0
+
+#Turn rate constraints
+  max_turn_rate: 15.0
+  max_turn_radius: 50.0
+
+#Operational constraints
+  max_endurance: 10800 #maximum flight time of the uav as per the uav
+  mission_endurance: 5400 #seconds
+  reserve_endurance: 2700 #seconds (at this ,the mode will be RTB-Return To Base)
+  emergency_floor: 0.22 #Remaining battery lavel (at this,the mode will be an emergency landing to reserve the remaining power for communication)
+#(Eliminated operation range range for now to enable build up)
+
+#Safety margins(all are in metres)
+  obstacle_clearance: 10.0
+  ground_clearance: 30.0
+  terrain_clearance: 50.0
+
+#Performance envelope
+  operational_ceiling: 2000 #metres AMSL---- maximum altitude at which the aircraft can safely and effectively perform its mission
+  service_ceiling: 3000 #metres AMSL -----highest altitude where the UAV can still climb, maneuver, and recover safely---
+  minimum_operational_altitude: 120 #metres---allows the UAV to recover from its own mistakes.
+  #(I want to implement a maximum g load at a later time once the firstbuild up is complete)
+
+path:
+  min_altitude_agl: 120 #metres same to the minimum operational altitude of the uav
+  #Smoothness constraints
+  max_curvature: 0.0125
+  max_curvature_rate: 0.002 #1/m/s → prevents snap curvature changes (smooth guidance)
+  #Sampling parameters
+  segment_length: 20.0  # metres – good geometric resolution
+  time_step: 0.5   # seconds
+  #Feasibility 
+  curvature_tolerance: 0.001   # numerical slack for planner feasibility checks
+  max_climbangle: 12.0   # degrees – below thrust-limited climb envelope
+  #Dubins
+  dubins:
+    min_radius: 80.0   # metres – planner-safe turn radius (not absolute limit)
+    step_size: 10.0    # metres – smooth Dubins discretization
+    path_types: ["LSL", "RSR", "LSR", "RSL", "RLR", "LRL"]
+  
+environment:
+  bounds: #All are in metres
+    x_min: 0.0
+    x_max: 1000.0
+    y_min: 0.0
+    y_max: 1000.0
+    z_min: 120.0 #minimum altitude agl
+    z_max: 2000.0 #operational ceiling
+  
+  # No-fly zones (circular)
+  no_fly_zones:
+    - center: [200.0,300.0]
+      radius: 100.0
+      height: 300.0
+    - center: [600.0, 700.0]
+      radius: 150.0
+      height: 400.0
+  
+  # Terrain constraints
+  terrain:
+    resolution: 10.0  # meters per grid cell
+    max_slope: 20.0   # degrees – beyond this planner avoids terrain hugging
+    
+  # Weather/Wind
+  max_wind_speed:  10.0   # m/s – ~25–30% of cruise speed
+  wind_direction: null    # estimated or injected by environment model
+
+mission:
+  start_pose: [0, 0, 150, 0]     # x, y, z(AGL), heading
+  goal_pose: [1200, 800, 150, 0]
+  waypoints:
+    - [300, 200, 150]
+    - [600, 400, 150]
+    - [900, 600, 150]
+  
+  # Task Constraints
+  observation_radius: 60.0   # metres – EO/IR useful footprint
+  loiter_radius:  100.0   # metres – above min turn radius for stable loiter
+  max_deviation: 25.0        # metres – lateral deviation tolerance
+
+
+  
+  
+propulsion:
+  T_max: 12.0
+  delta_t:  0.6
