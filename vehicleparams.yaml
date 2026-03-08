@@ -1,4 +1,4 @@
-mass: 2.0  # kg
+mass: 28.2 # kg
 inertia: [0.1, 0.15, 0.2]  # [Ixx, Iyy, Izz] roll inertia (small → agile roll),pitch inertia (moderate),yaw inertia (largest → sluggish yaw) for fixed UAV
 wing_area: 0.5  # m^2
 wing_span: 2.0 # m
@@ -61,7 +61,7 @@ uav:
 #Turn rate constraints
   max_turn_rate: 15.0
   max_turn_radius: 200.0
-  min_turn_radius: 15.0
+  min_turn_radius: 35.0
 
 #Operational constraints
   max_endurance: 10800 #maximum flight time of the uav as per the uav
