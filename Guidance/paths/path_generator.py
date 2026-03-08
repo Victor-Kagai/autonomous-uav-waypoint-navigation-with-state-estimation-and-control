@@ -413,6 +413,66 @@ class BSplineSegment(Pathsegment):
         dx, dy = splev(t_vals, self._tck, der=1)
         return np.arctan2(dy, dx)
 
-     
+"""I deliberately did not input polyspline as part of the run code  given
+ for a UAV the paths are chained by arcs and line segments though this maybe appropriate in the case of
+  a dense cloud of GPS waypoints or terrain following where the shape is data driven or one wants a fairing curve for visualisation
+over a rough set points"""
+# class PolySpline(Pathsegment):
+#     """
+#     Smooth spline path through an ordered list of Waypoint objects.
+#     Uses a parametric cubic B-spline (splprep/splev) internally.
+    
+#     Fits a smooth curve through all waypoints and exposes the same
+#     interface as line_segment and circular_arc.
+#     """
+
+#     def __init__(
+#         self,
+#         waypoint_list: list,
+#         step:          float = 1.0,
+#         turn_radius:   float = None,
+#         smoothing:     float = 0.0,   # 0 = interpolates exactly through points
+#     ):
+#         _radius = turn_radius if turn_radius is not None else radius
+#         super().__init__(step=step, turn_radius=_radius)
+
+#         if len(waypoint_list) < 2:
+#             raise ValueError("PolySpline requires at least 2 waypoints.")
+
+#         self._waypoints = waypoint_list
+#         self.smoothing  = smoothing
+
+#         # Fit once at construction — sample/length/heading are cheap after
+#         pts         = np.array([[wp.x, wp.y] for wp in self._waypoints])
+#         self._tck, self._u = splprep(
+#             [pts[:, 0], pts[:, 1]],
+#             s=self.smoothing,
+#             k=min(3, len(waypoint_list) - 1)  # degree can't exceed n_points - 1
+#         )
+
+#     def sample(self, num_points: int = 100) -> np.ndarray:
+#         u_vals   = np.linspace(0, 1, num_points)
+#         x, y     = splev(u_vals, self._tck)
+#         return np.vstack((x, y)).T
+
+#     def length(self) -> float:
+#         pts   = self.sample(1000)
+#         diffs = np.diff(pts, axis=0)
+#         return float(np.hypot(diffs[:, 0], diffs[:, 1]).sum())
+
+#     def heading_at_start(self) -> float:
+#         dx, dy = splev(0.0, self._tck, der=1)
+#         return float(np.arctan2(dy, dx))
+
+#     def heading_at_end(self) -> float:
+#         dx, dy = splev(1.0, self._tck, der=1)
+#         return float(np.arctan2(dy, dx))
+
+#     def yaw_array(self, num_points: int = 100) -> np.ndarray:
+#         """Analytic tangent heading — overrides base class finite-difference fallback."""
+#         u_vals = np.linspace(0, 1, num_points)
+#         dx, dy = splev(u_vals, self._tck, der=1)
+#         return np.arctan2(dy, dx)
+
      
 
